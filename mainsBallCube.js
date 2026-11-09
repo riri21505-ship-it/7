@@ -85,14 +85,9 @@ scene.add(pivot);
 // Toy Train本体
 // ==============================
 const train = new THREE.Group();
-// 車体（横向きの円柱）
-const bodyGeometry = new THREE.CylinderGeometry(
-    0.7,  // 上面の半径
-    0.7,  // 底面の半径
-    3,    // 長さ
-    32    // 円周の分割数
-);
 
+// 車体
+const bodyGeometry = new THREE.BoxGeometry(3, 0.8, 1.2);
 const bodyMaterial = new THREE.MeshPhongMaterial({
     color: 0x159447
 });
