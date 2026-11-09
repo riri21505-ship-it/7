@@ -1,4 +1,3 @@
-
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
@@ -53,23 +52,26 @@ class wheel extends THREE.Object3D {
             segments
         );
 
-        this.material = new THREE.MeshStandardMaterial({
-            color: color,
-            wireframe: true
-        });
+this.material = new THREE.MeshStandardMaterial({
+    color: color,
+    wireframe: true
+});
 
         this.mesh = new THREE.Mesh(
             this.geometry,
             this.material
         );
 
+        // 車輪の位置
         this.position.set(x, y, z);
 
+        // 車輪を横向きにする
         this.mesh.rotation.x = Math.PI / 2;
 
         this.add(this.mesh);
     }
 
+    // 車輪の自転
     rotateWheel(speed) {
         this.rotation.z += speed;
     }
@@ -91,18 +93,10 @@ const bodyGeometry = new THREE.BoxGeometry(3, 0.8, 1.2);
 const bodyMaterial = new THREE.MeshPhongMaterial({
     color: 0x159447
 });
-
-const body = new THREE.Mesh(
-    bodyGeometry,
-    bodyMaterial
-);
-
-// 円柱を横向きにする
-body.rotation.z = Math.PI / 2;
-
+const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
 body.position.set(0, 1, 0);
-
 train.add(body);
+
 // 運転席
 const cabinGeometry = new THREE.BoxGeometry(1.2, 1.2, 1.1);
 const cabinMaterial = new THREE.MeshPhongMaterial({
@@ -184,27 +178,15 @@ train.add(wheelSmall1);
 train.add(wheelSmall2);
 train.add(wheelSmall3);
 train.add(wheelSmall4);
-// ==============================
-// グループの中心を原点に移動させる
-// ==============================
 
-// グループ全体の大きさと中心点を計算
-const box = new THREE.Box3().setFromObject(train);
-
-const center = new THREE.Vector3();
-box.getCenter(center);
-
-// 子オブジェクトを中心が原点になるように移動
-train.children.forEach((child) => {
-    child.position.sub(center);
-});
 // ==============================
 // 前部分を回転の中心にする
 // ==============================
 
 // 煙突側のX座標は約1.5
 // 回転中心を原点に合わせるため、本体を後方へずらす
-scene.add(train);
+train.position.set(-1.5, 0, 0);
+pivot.add(train);
 
 // ==============================
 // アニメーション
@@ -229,8 +211,7 @@ wheelSmall4.rotateWheel(0.02);
     wheelSmall4.rotateWheel(0.02);
 
     // 煙突側の前部分を中心に水平回転
-// Toy Train全体を自転
-train.rotation.y += 0.01;
+    pivot.rotation.y += 0.01;
 
     controls.update();
     renderer.render(scene, camera);
