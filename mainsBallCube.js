@@ -1,4 +1,3 @@
-
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
@@ -60,9 +59,8 @@ class wheel extends THREE.Object3D {
             segments
         );
 
-        this.material = new THREE.MeshStandardMaterial({
-            color: color,
-            wireframe: true
+        this.material = new THREE.MeshPhongMaterial({
+            color: color
         });
 
         this.mesh = new THREE.Mesh(
@@ -281,22 +279,17 @@ for (let i = 0; i < 5; i++) {
 function animate() {
     requestAnimationFrame(animate);
 
-    // 5つのToy Trainをそれぞれ自転
-    trains.forEach((train) => {
+    // 車輪を自転
+    wheelBig1.rotateWheel(0.02);
+    wheelBig2.rotateWheel(0.02);
 
-        // Toy Train全体の水平回転
-        train.rotation.y -= 0.01;
+    wheelSmall1.rotateWheel(0.02);
+    wheelSmall2.rotateWheel(0.02);
+    wheelSmall3.rotateWheel(0.02);
+    wheelSmall4.rotateWheel(0.02);
 
-        // それぞれの車輪を自転
-        train.children.forEach((child) => {
-
-            if (child instanceof wheel) {
-                child.rotateWheel(0.05);
-            }
-
-        });
-
-    });
+    // 煙突側の前部分を中心に水平回転
+    pivot.rotation.y += 0.01;
 
     controls.update();
     renderer.render(scene, camera);
