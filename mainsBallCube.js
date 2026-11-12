@@ -13,7 +13,7 @@ const camera = new THREE.PerspectiveCamera(
     0.1,
     1000
 );
-camera.position.set(0, 12, 22);
+camera.position.set(5, 4, 7);
 camera.lookAt(0, 1, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -38,19 +38,12 @@ scene.add(light);
 
 scene.add(new THREE.AxesHelper(5));
 
-
 // ==============================
 // 車輪クラス
 // ==============================
 class wheel extends THREE.Object3D {
     constructor(radius, width, segments, color, x, y, z) {
         super();
-
-        // 複製用に設定値を保存
-        this.radius = radius;
-        this.width = width;
-        this.segments = segments;
-        this.color = color;
 
         this.geometry = new THREE.CylinderGeometry(
             radius,
@@ -59,17 +52,20 @@ class wheel extends THREE.Object3D {
             segments
         );
 
-        this.material = new THREE.MeshPhongMaterial({
-            color: color
-        });
+this.material = new THREE.MeshStandardMaterial({
+    color: color,
+    wireframe: true
+});
 
         this.mesh = new THREE.Mesh(
             this.geometry,
             this.material
         );
 
+        // 車輪の位置
         this.position.set(x, y, z);
 
+        // 車輪を横向きにする
         this.mesh.rotation.x = Math.PI / 2;
 
         this.add(this.mesh);
@@ -78,24 +74,6 @@ class wheel extends THREE.Object3D {
     // 車輪の自転
     rotateWheel(speed) {
         this.rotation.z += speed;
-    }
-
-    // 複製時に車輪が二重にならないようにする
-    clone() {
-        const cloned = new wheel(
-            this.radius,
-            this.width,
-            this.segments,
-            this.color,
-            this.position.x,
-            this.position.y,
-            this.position.z
-        );
-
-        cloned.rotation.copy(this.rotation);
-        cloned.scale.copy(this.scale);
-
-        return cloned;
     }
 }
 
@@ -110,29 +88,15 @@ scene.add(pivot);
 // ==============================
 const train = new THREE.Group();
 
-// 車体（横向きの円柱）
-const bodyGeometry = new THREE.CylinderGeometry(
-    0.7,  // 上面の半径
-    0.7,  // 底面の半径
-    3,    // 長さ
-    32    // 円周の分割数
-);
-
+// 車体
+const bodyGeometry = new THREE.BoxGeometry(3, 0.8, 1.2);
 const bodyMaterial = new THREE.MeshPhongMaterial({
     color: 0x159447
 });
-
-const body = new THREE.Mesh(
-    bodyGeometry,
-    bodyMaterial
-);
-
-// 円柱を横向きにする
-body.rotation.z = Math.PI / 2;
-
+const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
 body.position.set(0, 1, 0);
-
 train.add(body);
+
 // 運転席
 const cabinGeometry = new THREE.BoxGeometry(1.2, 1.2, 1.1);
 const cabinMaterial = new THREE.MeshPhongMaterial({
@@ -214,73 +178,31 @@ train.add(wheelSmall1);
 train.add(wheelSmall2);
 train.add(wheelSmall3);
 train.add(wheelSmall4);
-// ==============================
-// グループの中心を原点に移動させる
-// ==============================
 
-// グループ全体の大きさと中心点を計算
-const box = new THREE.Box3().setFromObject(train);
-
-const center = new THREE.Vector3();
-box.getCenter(center);
-
-// 子オブジェクトを中心が原点になるように移動
-train.children.forEach((child) => {
-    child.position.sub(center);
-});
 // ==============================
 // 前部分を回転の中心にする
 // ==============================
 
 // 煙突側のX座標は約1.5
 // 回転中心を原点に合わせるため、本体を後方へずらす
-// ==============================
-// Toy Trainを5つ生成・配置
-// ==============================
-
-const trains = [];
-
-// それぞれの配置場所
-const positions = [
-    [-7, 0, 5],
-    [-4, 0, -5],
-    [0, 0, 0],
-    [4, 0, -5],
-    [7, 0, 5]
-];
-
-// 5つのToy Trainを生成
-for (let i = 0; i < 5; i++) {
-
-    let newTrain;
-
-    if (i === 0) {
-        newTrain = train;
-    } else {
-        newTrain = train.clone(true);
-    }
-
-    newTrain.position.set(
-        positions[i][0],
-        positions[i][1],
-        positions[i][2]
-    );
-
-    scene.add(newTrain);
-
-    trains.push(newTrain);
-}
+train.position.set(-1.5, 0, 0);
+pivot.add(train);
 
 // ==============================
 // アニメーション
 // ==============================
-
-
 function animate() {
     requestAnimationFrame(animate);
 
     // 車輪を自転
-    wheelBig1.rotateWheel(0.02);
+// 車輪を自転
+wheelBig1.rotateWheel(0.05);
+wheelBig2.rotateWheel(0.02);
+
+wheelSmall1.rotateWheel(0.02);
+wheelSmall2.rotateWheel(0.02);
+wheelSmall3.rotateWheel(0.02);
+wheelSmall4.rotateWheel(0.02);
     wheelBig2.rotateWheel(0.02);
 
     wheelSmall1.rotateWheel(0.02);
@@ -294,9 +216,6 @@ function animate() {
     controls.update();
     renderer.render(scene, camera);
 }
-
-
-
 
 animate();
 
